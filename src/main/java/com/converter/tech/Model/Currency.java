@@ -76,7 +76,7 @@ public class Currency {
         return
                 id + '\'' +
                 numCode + '\'' +
-                charNode + '\'' +
+                        charNode + '\'' +
                 nominal +
                 name + '\'';
     }

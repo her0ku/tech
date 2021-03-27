@@ -36,8 +36,7 @@ public class XMLService {
             {
                 Element element = (Element) node;
                 DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd.MM.yyyy");
-                currentDate = LocalDate.parse((element.getAttribute("Date")), dateTimeFormatter);
-                System.out.println("Сегодняшняя дата " + currentDate);
+                currentDate = LocalDate.parse((element.getAttribute("Date")), dateTimeFormatter);;
             }
             nodeList = doc.getElementsByTagName("Valute");
             for(int i = 0; i < nodeList.getLength(); i++)
@@ -49,26 +48,16 @@ public class XMLService {
 
                     //Паршу данные и  добавляю их в конструткор
                     String code = currency.getElementsByTagName("CharCode").item(0).getTextContent();
+                    //Добавяю валюту
                     Currency initCurrency = new Currency(currency.getAttribute("ID"), currency.getElementsByTagName("NumCode").item(0).getTextContent(),
                             code, Integer.parseInt(currency.getElementsByTagName("Nominal").item(0).getTextContent()), currency.getElementsByTagName("Name").item(0).getTextContent());
-                    //добавляю объект в список Валют
+                    //добавляю объект в список курса Валют
                     currencyList.add(initCurrency);
                     double value = Double.parseDouble(currency.getElementsByTagName("Value").item(0).getTextContent().replace("," , "."));
                     Rate initRate = new Rate(currency.getAttribute("ID"), currentDate, code, value);
                     rateList.add(initRate);
 
                 }
-            }
-            System.out.print("Вывод данных ВАЛЮТ\n ");
-            for(Currency currency : currencyList)
-            {
-                System.out.println(currency);
-            }
-
-            System.out.println("\n_______________________________________________________\n" + "Вывод курса ВАЛЮТЫ ");
-            for(Rate rate : rateList)
-            {
-                System.out.println(rate);
             }
             return new XMLData(currencyList, rateList);
         } catch (ParserConfigurationException e) {
@@ -95,7 +84,6 @@ public class XMLService {
                 Element element = (Element) node;
                 DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd.MM.yyyy");
                 currentDate = LocalDate.parse((element.getAttribute("Date")), dateTimeFormatter);
-                System.out.println("Сегодняшняя дата " + currentDate);
                 return currentDate;
             }
         } catch (ParserConfigurationException e) {

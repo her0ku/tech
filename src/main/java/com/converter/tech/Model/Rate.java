@@ -1,11 +1,9 @@
 package com.converter.tech.Model;
 
 import org.hibernate.annotations.GenericGenerator;
-import org.springframework.context.annotation.Configuration;
 
 import javax.persistence.*;
 import java.time.LocalDate;
-import java.util.Date;
 
 @Entity
 @Table(name = "rates")
