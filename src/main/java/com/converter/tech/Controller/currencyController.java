@@ -1,20 +1,18 @@
 package com.converter.tech.Controller;
 
 import com.converter.tech.DAO.RateRepository;
+import com.converter.tech.Model.Buffer;
 import com.converter.tech.Model.Currency;
 import com.converter.tech.Model.Rate;
 import com.converter.tech.Model.XMLData;
-import com.converter.tech.Service.ActualRate;
-import com.converter.tech.Service.CurrencyService;
-import com.converter.tech.Service.RateService;
-import com.converter.tech.Service.XMLService;
+import com.converter.tech.Service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 @Controller
@@ -25,6 +23,7 @@ public class currencyController {
 
     @Autowired
     private RateService rateService;
+
 
     @GetMapping("/")
     public String getA(Model model)
@@ -39,8 +38,15 @@ public class currencyController {
         }
         List<Currency> currencyList = currencyService.getAllCurrency();
         List<Rate> actualRate = rateService.findAllByLocalDate(actualDate);
-        model.addAttribute("currency", currencyList);
-        model.addAttribute("rate", actualRate);
+        List<Buffer> buff = new ArrayList<>();
+        for(int i = 0; i < currencyList.size(); i++)
+        {
+            buff.add(new Buffer(currencyList.get(i).getCharNode(),currencyList.get(i).getName()
+                    ,actualRate.get(i).getCurrentRate(), currencyList.get(i).getNominal()));
+            System.out.println(buff.get(i));
+        }
+        model.addAttribute("bufferList", buff);
+
         return "convertpage";
     }
 

@@ -17,12 +17,14 @@
     <div class="my-3 py-3">
         <h2 class="display-5">ИЗ</h2>
     </div>
-        <div class="col-lg-3" th:object="${currency}" th:onchange="changeEventHandler()">
+        <div class="col-lg-3" th:object="${bufferList}">
             <select class="form-control" id="currencyList" name="currencyList">
                 <option value="">Выберете валюту</option>
-                <option th:each="curName : ${currency}"
+                <option th:each="curName : ${bufferList}"
                         th:value="${curName.getNominal()}"
-                        th:text="${curName.getCharNode()} + ' (' + ${curName.getName()} + ')'"></option>
+                        th:data-rate="${curName.getCurrentRate()}"
+                        th:data-val="${curName.getNominal()}"
+                        th:text="${curName.getCharCode()} + ' (' + ${curName.getName()} + ')'"></option>
             </select>
         </div>
     <br>
@@ -32,11 +34,13 @@
     <div class="my-3 py-3">
         <h2 class="display-5">В</h2>
     </div>
-    <div class="col-lg-3" th:object="${rate}" th:onchange="changeRateHandler()">
+    <div class="col-lg-3" th:object="${bufferList}">
         <select class="form-control" id="rateList" name="rateList">
-            <option value="">RUB (Российский рубль)</option>
-            <option th:each="rateName : ${rate}"
-                    th:value="${rateName.getCurrentRate()}"></option>
+            <option value="RUS" selected>RUB (Российский рубль)</option>
+            <option th:each="rateName : ${bufferList}"
+                    th:value="${rateName.getCurrentRate()}"
+                    th:text="${rateName.getCharCode()} + ' (' + ${rateName.getName()} + ')'">
+            </option>
         </select>
     </div>
     <br>
@@ -44,16 +48,24 @@
 </div>
 </body>
 <script type="text/javascript">
+    $("#currencyList").on('change', function(){
+        $rate = $(this).parent().find('option:selected').data('rate')
+        $('#nominal').val($("#currencyList").val())
+        $('#rateValue').val($rate);
+    });
 
-    function changeEventHandler() {
-        var nominal_rate = $("#currencyList option:selected").val();
-        $("#nominal").val(nominal_rate);
-    }
-
-    function changeRateHandler(){
-        var rate = $("#currencyList option:selected").val();
-        var nominal = $("#nominal").val();
-        alert("rate = " + rate + " nominal = " + nominal + " SUM = " + (rate+nominal));
-    }
+    $("#nominal").keyup(function (){
+        if($("#rateList").val() == "RUS") {
+            alert("Мы тут" + $("#rateList").val());
+            $valute = $("#nominal").val();
+            $nominal = $("#currencyList").parent().find('option:selected').data('val');
+            $convertValute = $("#currencyList").parent().find('option:selected').data('rate');
+            $result = ($valute * $convertValute) / $nominal;
+            $('#rateValue').val($result.toFixed(2));
+        }
+        else {
+            alert("Мы в else " + $("#rateList").val())
+        }
+    });
 </script>
 </html>
