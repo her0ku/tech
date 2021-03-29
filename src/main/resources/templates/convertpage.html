@@ -1,62 +1,100 @@
 <!DOCTYPE html>
 <html lang="en">
 <html xmlns:th="http://www.thymeleaf.org">
+
 <head>
     <meta charset="UTF-8">
     <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <title>Конвертер валют</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-eOJMYsd53ii+scO/bJGFsiCZc+5NDVN2yr8+0RDqr0Ql0h+rP48ckxlpbzKgwra6" crossorigin="anonymous">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-eOJMYsd53ii+scO/bJGFsiCZc+5NDVN2yr8+0RDqr0Ql0h+rP48ckxlpbzKgwra6" crossorigin="anonymous">
 </head>
+<style>
+    .wrapper {
+        width: 70rem;
+        margin: 0 auto;
+    }
+
+    .convertor-wrapper {
+        display: flex;
+        justify-content: space-between;
+    }
+
+    .button-wrapper {
+        display: flex;
+        flex-direction: column;
+
+        justify-content: space-between;
+    }
+</style>
 <body>
 <div class="position-relative overflow-hidden p-3 p-md-5 m-md-3 text-center bg-white">
     <div class="col-md-5 p-lg-5 mx-auto my-5">
         <h1 class="display-4 fw-normal"> Конвертер валют</h1>
     </div>
 </div>
-<div class="d-md-flex flex-md-equal w-100 my-md-3 ps-md-3">
-    <div class="my-3 py-3">
-        <h2 class="display-5">ИЗ</h2>
-    </div>
-        <div class="col-lg-3" th:object="${bufferList}">
-            <select class="form-control" id="currencyList" name="currencyList">
-                <option value="">Выберете валюту</option>
-                <option th:each="curName : ${bufferList}"
-                        th:value="${curName.getNominal()}"
-                        th:data-rate="${curName.getCurrentRate()}"
-                        th:data-val="${curName.getNominal()}"
-                        th:text="${curName.getCharCode()} + ' (' + ${curName.getName()} + ')'"></option>
-            </select>
+<section class="wrapper">
+    <div class="convertor-wrapper ">
+        <div class="d-md-flex flex-md-equal w-100 my-md-3 ps-md-3 row align-items-center">
+            <div class="mb-3" style="margin-right: 1rem;">
+                <h2 class="display-5">ИЗ</h2>
+            </div>
+            <div class="mb-3" th:object="${bufferList}">
+                <select class="form-control" id="currencyList" name="currencyList">
+                    <option value="">Выберете валюту</option>
+                    <option th:each="curName : ${bufferList}" th:value="${curName.getNominal()}"
+                            th:data-rate="${curName.getCurrentRate()}" th:data-val="${curName.getNominal()}"
+                            th:text="${curName.getCharCode()} + ' (' + ${curName.getName()} + ')'"></option>
+                </select>
+                <input type="number" id="nominal" />
+            </div>
+            <br>
+
         </div>
-    <br>
-    <input type="number" id="nominal"/>
-</div>
-<div class="d-md-flex flex-md-equal w-100 my-md-3 ps-md-3">
-    <div class="my-3 py-3">
-        <h2 class="display-5">В</h2>
+        <div class="d-md-flex flex-md-equal w-100 my-md-3 ps-md-3 row align-items-center">
+            <div class="mb-3" style="margin-right: 1rem;">
+                <h2 class="display-5">В</h2>
+            </div>
+            <div class="mb-3" th:object="${bufferList}">
+                <select class="form-control" id="rateList" name="rateList">
+                    <option value="RUS" selected>RUB (Российский рубль)</option>
+                    <option th:each="rateName : ${bufferList}" th:value="${rateName.getCurrentRate()}"
+                            th:data-nominal="${rateName.getNominal()}"
+                            th:text="${rateName.getCharCode()} + ' (' + ${rateName.getName()} + ')'">
+                    </option>
+                </select>
+                <input type="number" id="rateValue" />
+            </div>
+
+        </div>
     </div>
-    <div class="col-lg-3" th:object="${bufferList}">
-        <select class="form-control" id="rateList" name="rateList">
-            <option value="RUS" selected>RUB (Российский рубль)</option>
-            <option th:each="rateName : ${bufferList}"
-                    th:value="${rateName.getCurrentRate()}"
-                    th:text="${rateName.getCharCode()} + ' (' + ${rateName.getName()} + ')'">
-            </option>
-        </select>
+
+    <div class="button-wrapper" style="margin-bottom:1rem;">
+        <button type="submit" class="btn btn-primary" id="submitConvert">Конвертировать</button>
+
     </div>
-    <br>
-    <input type="number" id="rateValue"/>
-</div>
+    <div>
+        <a th:href="@{/history}">
+            <button type="submit" class="btn btn-primary" id="goToHistory">История</button>
+        </a>
+    </div>
+
+</section>
+
+
 </body>
 <script type="text/javascript">
-    $("#currencyList").on('change', function(){
-        $rate = $(this).parent().find('option:selected').data('rate')
-        $('#nominal').val($("#currencyList").val())
-        $('#rateValue').val($rate);
+    $("#currencyList").on('change', function () {
+        firstInit();
     });
-
-    $("#nominal").keyup(function (){
-        if($("#rateList").val() == "RUS") {
-            alert("Мы тут" + $("#rateList").val());
+    $("#rateList").on('change', function () {
+        convert();
+    });
+    $("#nominal").keyup(function () {
+        convert();
+    });
+    function convert() {
+        if ($("#rateList").val() == "RUS") {
             $valute = $("#nominal").val();
             $nominal = $("#currencyList").parent().find('option:selected').data('val');
             $convertValute = $("#currencyList").parent().find('option:selected').data('rate');
@@ -64,8 +102,44 @@
             $('#rateValue').val($result.toFixed(2));
         }
         else {
-            alert("Мы в else " + $("#rateList").val())
+            $valute = $("#nominal").val();
+            $nominalFrom = $("#currencyList").parent().find('option:selected').data('val');
+            $rateFrom = $("#currencyList").parent().find('option:selected').data('rate');
+            $rateTo = $("#rateList").val();
+            $nominalTo = $("#rateList").parent().find('option:selected').data('nominal');
+            $result = ($valute * $nominalFrom * $rateFrom) / ($rateTo * $nominalTo * $nominalFrom);
+            $('#rateValue').val($result.toFixed(3));
         }
+    }
+    function firstInit() {
+        if ($("#rateList").val() == "RUS") {
+            $rate = $("#currencyList").parent().find('option:selected').data('rate');
+            $('#nominal').val($("#currencyList").val());
+            $('#rateValue').val($rate);
+        }
+        else {
+            convert();
+        }
+    }
+
+    $("#submitConvert").click(function () {
+        var rateData = {};
+        rateData["rateFrom"] = $('#currencyList').find('option:selected').text();
+        rateData["rateTo"] = $('#rateList').find('option:selected').text();
+        rateData["baseSum"] = parseFloat($('#nominal').val());
+        rateData["currentSum"] = parseFloat($('#rateValue').val());
+
+        $.ajax({
+            type: "POST",
+            contentType: "application/json",
+            url: "history",
+            data: JSON.stringify(rateData),
+            dataType: 'json',
+            beforeSend: function () {
+                alert("Конвертация прошла успешно, данные занесены в вашу Историю");
+            }
+        });
     });
 </script>
+
 </html>

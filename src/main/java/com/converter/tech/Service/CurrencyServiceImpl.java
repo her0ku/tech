@@ -13,7 +13,7 @@ public class CurrencyServiceImpl implements CurrencyService {
     CurrencyRepository currencyRepository;
 
     @Override
-    public void addAllCurrency(Currency currency) {
+    public void saveAllCurrency(Currency currency) {
         currencyRepository.save(currency);
     }
 

@@ -9,5 +9,4 @@ public interface RateService {
     Rate findFirstByLocalDate(LocalDate date);
     List<Rate> findAllByLocalDate(LocalDate date);
     void saveAllRates(Rate rate);
-    List<Rate> getAllRates();
 }

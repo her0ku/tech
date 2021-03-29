@@ -15,8 +15,15 @@ import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 public class securityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
+        http.cors().and().csrf().disable();
         http
-            .formLogin().defaultSuccessUrl("/a", true);
+                .authorizeRequests()
+                .anyRequest().authenticated()
+                .and()
+                .formLogin()
+                .loginPage("/login")
+                .defaultSuccessUrl("/convert", true)
+                .permitAll();
     }
 
     @Bean
@@ -24,7 +31,6 @@ public class securityConfig extends WebSecurityConfigurerAdapter {
     protected UserDetailsService userDetailsService() {
         UserDetails thisUser = User.withDefaultPasswordEncoder().username("user")
                 .password("123").roles("USER").build();
-
 
         return new InMemoryUserDetailsManager(thisUser);
     }

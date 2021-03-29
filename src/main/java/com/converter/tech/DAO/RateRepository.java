@@ -7,7 +7,6 @@ import java.time.LocalDate;
 import java.util.List;
 
 public interface RateRepository extends JpaRepository<Rate, String> {
-    List<Rate> findAllByCharCode(String name);
     Rate findFirstByLocalDate(LocalDate date);
     List<Rate> findAllByLocalDate(LocalDate date);
 }

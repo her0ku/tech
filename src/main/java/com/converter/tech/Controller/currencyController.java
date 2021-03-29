@@ -1,15 +1,11 @@
 package com.converter.tech.Controller;
 
-import com.converter.tech.DAO.RateRepository;
-import com.converter.tech.Model.Buffer;
-import com.converter.tech.Model.Currency;
-import com.converter.tech.Model.Rate;
-import com.converter.tech.Model.XMLData;
+import com.converter.tech.Model.*;
 import com.converter.tech.Service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -24,20 +20,26 @@ public class currencyController {
     @Autowired
     private RateService rateService;
 
+    @Autowired
+    private HistoryService historyService;
 
-    @GetMapping("/")
+    @GetMapping("/login")
+    public String login()
+    {
+        return "login";
+    }
+
+
+    @GetMapping("/convert")
     public String getA(Model model)
     {
-        LocalDate actualDate = XMLService.getActualDate();
-        LocalDate localDate = rateService.findFirstByLocalDate(XMLService.getActualDate()).getLocalDate();
-        System.out.println("Дата из БД - " + localDate + " Актуальная дата из документа - " + actualDate);
-        if(!localDate.equals(actualDate))
-        {
-            ActualRate.addActualDate(rateService);
-            System.out.println("Добавление актуального курса валют ");
-        }
+        LocalDate localDate = ActualData.getActualDate(rateService,currencyService);
         List<Currency> currencyList = currencyService.getAllCurrency();
-        List<Rate> actualRate = rateService.findAllByLocalDate(actualDate);
+        if(currencyList.isEmpty())
+        {
+            ActualData.addActualCurrency(currencyService);
+        }
+        List<Rate> actualRate = rateService.findAllByLocalDate(localDate);
         List<Buffer> buff = new ArrayList<>();
         for(int i = 0; i < currencyList.size(); i++)
         {
@@ -50,10 +52,19 @@ public class currencyController {
         return "convertpage";
     }
 
-    @GetMapping("/getAll")
-    public String getAllemps() {
-        List<Rate> allRates = rateService.getAllRates();
-        System.out.println(allRates);
-        return "W";
+    @PostMapping("/history")
+    public void create(@RequestBody History history)
+    {
+        System.out.println(history);
+        historyService.saveHistory(new History(history.getRateFrom(),history.getRateTo(),history.getBaseSum(),
+                history.getCurrentSum(), XMLService.getActualDate()));
+    }
+
+    @GetMapping("/history")
+    public String getAllHistory(Model model)
+    {
+        List<History> historyList = historyService.getAllHistory();
+        model.addAttribute("history", historyList);
+        return "history";
     }
 }

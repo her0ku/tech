@@ -37,8 +37,4 @@ public class RateServiceImpl implements RateService{
         rateRepository.save(rate);
     }
 
-    @Override
-    public List<Rate> getAllRates() {
-        return rateRepository.findAll();
-    }
 }
